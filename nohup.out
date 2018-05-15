@@ -1,0 +1,29 @@
+Copying gs://pulse9-camera.appspot.com/Images/1-REALISTIC-A_pulse9.dev@gmail.com_180512210454...
+/ [0 files][    0.0 B/734.0 KiB]                                                / [1 files][734.0 KiB/734.0 KiB]                                                
+Operation completed over 1 objects/734.0 KiB.                                    
+Copying gs://pulse9-camera.appspot.com/Images/1-REALISTIC-A_pulse9.dev@gmail.com_180512210454 [Content-Type=image/jpeg]...
+/ [0 files][    0.0 B/734.0 KiB]                                                / [1 files][734.0 KiB/734.0 KiB]                                                Removing gs://pulse9-camera.appspot.com/Images/1-REALISTIC-A_pulse9.dev@gmail.com_180512210454...
+-
+Operation completed over 1 objects/734.0 KiB.                                    
+doing something
+Traceback (most recent call last):
+  File "receive_data.py", line 37, in <module>
+    receive_data()
+  File "receive_data.py", line 23, in receive_data
+    outfiles = os.listdir("./out_data/")
+OSError: [Errno 2] No such file or directory: './out_data/'
+Traceback (most recent call last):
+  File "test.py", line 6, in <module>
+    import skimage.io
+ImportError: No module named skimage.io
+doing something
+Traceback (most recent call last):
+  File "receive_data.py", line 37, in <module>
+    receive_data()
+  File "receive_data.py", line 23, in receive_data
+    outfiles = os.listdir("./out_data/")
+OSError: [Errno 2] No such file or directory: './out_data/'
+Traceback (most recent call last):
+  File "test.py", line 6, in <module>
+    import skimage.io
+ImportError: No module named skimage.io
