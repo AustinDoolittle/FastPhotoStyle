@@ -5,7 +5,6 @@ import time
 
 
 def receive_data():
-  print("doing something")
   storage_list = os.popen('sudo gsutil ls -l gs://pulse9-camera.appspot.com/Images/').read()
   tmp = storage_list.split()
   for k in tmp:

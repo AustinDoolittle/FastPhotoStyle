@@ -12,8 +12,6 @@ received_dir = "./get_data/"
 
 
 def test():
-  print("processing ...")
-  
   files = os.listdir(received_dir)
   for file in files:
     if ".jpg" in file:
@@ -23,9 +21,15 @@ def test():
       skimage.io.imsave(received_dir+file, people)
       subprocess.call("sudo rm ./images/contents/*.jpg", shell=True)
       subprocess.call("sudo rm ./results/*", shell=True)
-      #subprocess.call("sudo convert -resize 50% ./get_data/"+file+" ./get_data/"+file, shell=True)
       img = Image.open("./get_data/"+file)
-      img = img.resize((406,722), Image.ANTIALIAS)
+      if img.size[1]>1200 or img.size[0]>600:
+          subprocess.call("sudo convert -resize 50% ./get_data/"+file+" ./get_data/"+file, shell=True)
+      elif img.size[1]>800 and img.size[1]<1200:
+          subprocess.call("sudo convert -resize 25% ./get_data/"+file+" ./get_data/"+file, shell=True)
+      else:
+          pass
+	
+      #img = img.resize((406,722), Image.ANTIALIAS)
       img.save("./get_data/"+file)
       subprocess.call("cp ./get_data/"+file+" ./images/contents/", shell=True)
       subprocess.check_call("python demo.py --content_image_path ./images/contents/"+file+" --style_image_path ./images/styles/"+file.split('_')[0] + ".jpg --output_image_path ./results/" + file , shell=True)
