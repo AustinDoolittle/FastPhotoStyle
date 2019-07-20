@@ -9,6 +9,7 @@ import numpy as np
 import scipy.sparse
 import scipy.sparse.linalg
 from numpy.lib.stride_tricks import as_strided
+from PIL import Image
 
 from PIL import Image
 
@@ -17,14 +18,16 @@ class Propagator(nn.Module):
     super(Propagator, self).__init__()
     self.beta = beta
 
-  def process(self, initImg, contentImg):
-    content = scipy.misc.imread(contentImg, mode='RGB')
-    B = scipy.misc.imread(initImg, mode='RGB').astype(np.float64)/255
+  # def process(self, output_nd, content):
+  def process(self, B, content):
+    # content = scipy.misc.imread(contentImg, mode='RGB')
+    # B = scipy.misc.imread(initImg, mode='RGB').astype(np.float64) / 255
     h1,w1,k = B.shape
     h = h1 - 4
     w = w1 - 4
     B = B[int((h1-h)/2):int((h1-h)/2+h),int((w1-w)/2):int((w1-w)/2+w),:]
-    content = scipy.misc.imresize(content,(h,w))
+    content = np.array(Image.fromarray(content).resize((h,w)))
+    # content = scipy.misc.imresize(content,(h,w))
     B = self.__replication_padding(B,2)
     content = self.__replication_padding(content,2)
     content = content.astype(np.float64)/255
@@ -47,7 +50,8 @@ class Propagator(nn.Module):
     V = V.reshape(h1,w1,k)
     V = V[2:2+h,2:2+w,:]
     
-    img = Image.fromarray(np.uint8(np.clip(V * 255., 0, 255.)))
+    # img = Image.fromarray(np.uint8(np.clip(V * 255., 0, 255.)))
+    img = np.uint8(np.clip(V * 255., 0, 255.))
     return img
 
   # Returns sparse matting laplacian

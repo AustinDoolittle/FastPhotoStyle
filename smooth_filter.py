@@ -329,8 +329,9 @@ from collections import namedtuple
 
 
 def smooth_local_affine(output_cpu, input_cpu, epsilon, patch, h, w, f_r, f_e):
-  program = Program(src.encode('utf-8'), 'best_local_affine_kernel.cu'.encode('utf-8'))
-  ptx = program.compile(['-I/usr/local/cuda-9.1/include'.encode('utf-8')])
+  # program = Program(src.encode('utf-8'), 'best_local_affine_kernel.cu'.encode('utf-8'))
+  program = Program(src, 'best_local_affine_kernel.cu')
+  ptx = program.compile(['-I/usr/local/cuda-9.1/include'])
   m = function.Module()
   m.load(bytes(ptx.encode()))
 
@@ -374,14 +375,14 @@ def smooth_local_affine(output_cpu, input_cpu, epsilon, patch, h, w, f_r, f_e):
   return numpy_filtered_best_output
 
 
-def smooth_filter(init_img_name, content_img_name, f_radius=15,f_edge=1e-1):
-  best_image_bgr = np.array(Image.open(init_img_name).convert("RGB"), dtype=np.float32)
+# def smooth_filter(init_img_name, content_img_name, f_radius=15,f_edge=1e-1):
+def smooth_filter(best_image_bgr, content_input, f_radius=15, f_edge=1e-1):
+  # best_image_bgr = np.array(Image.open(init_img_name).convert("RGB"), dtype=np.float32)
   bW, bH, bC = best_image_bgr.shape
   best_image_bgr = best_image_bgr[:, :, ::-1]
   best_image_bgr = best_image_bgr.transpose((2, 0, 1))
 
-  content_input = Image.open(content_img_name).convert("RGB")
-  content_input = content_input.resize((bH,bW))
+  content_input = Image.fromarray(content_input).resize((bH,bW))
   content_input = np.array(content_input, dtype=np.float32)
   content_input = content_input[:, :, ::-1]
   content_input = content_input.transpose((2, 0, 1))
@@ -390,5 +391,5 @@ def smooth_filter(init_img_name, content_img_name, f_radius=15,f_edge=1e-1):
   output_ = np.ascontiguousarray(best_image_bgr, dtype=np.float32) / 255.
   best_ = smooth_local_affine(output_, input_, 1e-7, 3, H, W, f_radius, f_edge)
   best_ = best_.transpose(1, 2, 0)
-  result = Image.fromarray(np.uint8(np.clip(best_ * 255., 0, 255.)))
-  return result
+  # result = Image.fromarray(np.uint8(np.clip(best_ * 255., 0, 255.)))
+  return best_
