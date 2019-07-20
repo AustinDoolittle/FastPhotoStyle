@@ -1,4 +1,6 @@
 from io import StringIO, BytesIO
+from uuid import uuid1
+import os
 
 import numpy as np
 from PIL import Image
@@ -6,7 +8,7 @@ import torch
 from torch.autograd import Variable
 import torchvision.transforms as transforms
 import torchvision.utils as utils
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
 
 from photo_smooth import Propagator
@@ -24,6 +26,12 @@ p_wct = PhotoWCT()
 p_wct.load_state_dict(torch.load('./PhotoWCTModels/photo_wct.pth'))
 p_wct.cuda(0)
 
+DATA_DIR = './model_output/'
+os.makedirs(DATA_DIR, exist_ok=True)
+
+
+def get_image_path(img_id):
+    return os.path.join(DATA_DIR, img_id)
 
 @app.route('/')
 def ping():
@@ -43,7 +51,6 @@ def predict():
     cont_seg = []
     styl_seg = []
 
-    content_nd = np.array(cont_img)
     cont_img = transforms.ToTensor()(cont_img).unsqueeze(0).cuda(0)
     styl_img = transforms.ToTensor()(styl_img).unsqueeze(0).cuda(0)
 
@@ -64,8 +71,19 @@ def predict():
     #                         f_radius=15, f_edge=1e-1)
 
     out_img = Image.fromarray(np.uint8(np.clip(result_nd * 255., 0, 255.)))
-    img_io = BytesIO()
-    out_img.save(img_io, 'JPEG', quality=70)
-    img_io.seek(0)
-    return send_file(img_io, mimetype='image/jpeg')
+    image_id = str(uuid1()) + '.jpg'
+    image_path = get_image_path(image_id)
+    out_img.save(image_path, 'JPEG', quality=100)
+    image_url = request.host_url + 'img/' + image_id
+    return jsonify({'result_image': image_url})
+
+
+@app.route('/img/<image_id>', methods=['GET'])
+def get_image(image_id):
+    image_path = get_image_path(image_id)
+
+    if not os.path.isfile(image_path):
+        return jsonify({'error': 'file not found'})
+
+    return send_file(image_path, mimetype='image/jpeg')
 
