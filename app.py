@@ -1,4 +1,3 @@
-from io import StringIO, BytesIO
 from uuid import uuid1
 import os
 
@@ -7,12 +6,10 @@ from PIL import Image
 import torch
 from torch.autograd import Variable
 import torchvision.transforms as transforms
-import torchvision.utils as utils
 from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
 
 from photo_smooth import Propagator
-from smooth_filter import smooth_filter
 from forms import ImageStyleForm
 from photo_wct import PhotoWCT
 
@@ -30,6 +27,7 @@ DATA_DIR = './model_output/'
 os.makedirs(DATA_DIR, exist_ok=True)
 
 MAX_SIZE = 1024
+
 
 def get_image_path(img_id):
     return os.path.join(DATA_DIR, img_id)
@@ -78,10 +76,6 @@ def predict():
 
     result_nd = stylized_img.data.cpu().numpy()
     result_nd = result_nd[0].transpose((1,2,0))
-
-    # result_nd = p_pro.process(result_nd, content_nd)
-    # result_nd = smooth_filter(result_nd, content_nd,
-    #                         f_radius=15, f_edge=1e-1)
 
     out_img = Image.fromarray(np.uint8(np.clip(result_nd * 255., 0, 255.)))
     image_id = str(uuid1()) + '.jpg'
