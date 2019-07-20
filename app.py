@@ -29,9 +29,20 @@ p_wct.cuda(0)
 DATA_DIR = './model_output/'
 os.makedirs(DATA_DIR, exist_ok=True)
 
+MAX_SIZE = 1024
 
 def get_image_path(img_id):
     return os.path.join(DATA_DIR, img_id)
+
+
+def resize_image(img):
+    img_max_side = max(img.size)
+
+    if img_max_side > MAX_SIZE:
+        img.thumbnail((MAX_SIZE, MAX_SIZE), resample=Image.ANTIALIAS)
+
+    return img
+
 
 @app.route('/')
 def ping():
@@ -47,7 +58,9 @@ def predict():
     style_image_fp = request.files[form.style_image.name]
 
     cont_img = Image.open(content_image_fp).convert('RGB')
+    cont_img = resize_image(cont_img)
     styl_img = Image.open(style_image_fp).convert('RGB')
+    styl_img = resize_image(styl_img)
     cont_seg = []
     styl_seg = []
 
