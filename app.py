@@ -7,6 +7,7 @@ from torch.autograd import Variable
 import torchvision.transforms as transforms
 import torchvision.utils as utils
 from flask import Flask, request, send_file
+from flask_cors import CORS
 
 from photo_smooth import Propagator
 from smooth_filter import smooth_filter
@@ -17,6 +18,7 @@ from photo_wct import PhotoWCT
 p_pro = Propagator()
 
 app = Flask(__name__)
+CORS(app)
 
 p_wct = PhotoWCT()
 p_wct.load_state_dict(torch.load('./PhotoWCTModels/photo_wct.pth'))
@@ -28,7 +30,7 @@ def ping():
     return 'ping successful'
 
 
-@app.route('/predict')
+@app.route('/predict', methods=['POST'])
 def predict():
     form = ImageStyleForm(request.form)
 
